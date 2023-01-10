@@ -1,0 +1,109 @@
+html
+    head
+        meta(charset='utf-8')
+        title Books-Magazines
+        meta(name='viewport' content='width=device-width, initial-scale=1')
+
+        link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css')
+        //- script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js')
+        script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js')
+        style 
+            include styles.css
+
+    body
+        div.container
+            ul(class="nav nav-tabs")
+                li.nav-item#books
+                    button(class=`nav-link ${activeTab == "books" ? "active": ""}` data-bs-toggle="tab" data-bs-target="#books-tab" onclick='window.history.pushState("","","?tab=books");window.location.reload();') Books
+                li.nav-item#magazines
+                    button(class=`nav-link ${activeTab == "magazines" ? "active": ""}` data-bs-toggle="tab" data-bs-target="#magazines-tab" onclick='window.history.pushState("","","?tab=magazines");window.location.reload();') Magazines
+
+            div.tab-content
+                div#books-tab(class=`tab-pane fade ${activeTab == "books" ? "show active": ""}` aria-labelledby="books" tabindex="0")
+                    div.header
+                        h1 Books
+                            a(href="books.csv" download="books.csv") 📥 
+                        div.input-group.input-group-sm
+                            input.form-control.search-bar(type="text" placeholder="Search Title/Author" onchange=`(${filter})(this.value, '${activeTab}')` value=searchData)
+
+                    table(class="table table-light table-hover table-striped")
+                        thead 
+                            tr.table-dark
+                                th Title
+                                th ISBN
+                                th Authors
+                                th Description
+                        tbody 
+                            each book in books
+                                tr
+                                    td= book.title
+                                    td= book.isbn
+                                    td
+                                        ul.authors-list
+                                            each author in book.authors
+                                                li #{`${author.firstname} ${author.lastname} (${author.email})`}
+                                    td= book.description
+                            form(action="/book" method="post" target="blankIframe" onsubmit="window.location.href = window.location.href") 
+                                tr 
+                                    td 
+                                        input.form-control(name="title" placeholder="Enter Title")
+                                    td 
+                                        input.form-control(name="isbn" placeholder="Enter ISBN")
+                                    td.form-check.authors-list
+                                        each author in authorsList
+                                            div
+                                                input.form-check-input(name="authors" type="checkbox" value=author.email id=`book-${author.email}`)
+                                                label.form-check-label(for=`book-${author.email}`)= `${author.firstname} ${author.lastname} (${author.email})`
+                                    td 
+                                        input.form-control(name="description" placeholder="Enter Description")
+                                tfoot.submit-container(colspan=4)
+                                    td
+                                    td
+                                    td
+                                    td
+                                        input(type="submit" value="Save")
+
+                div#magazines-tab(class=`tab-pane fade ${activeTab == "magazines" ? "show active": ""}` aria-labelledby="magazines" tabindex="0")
+                    div.header
+                        h1 Magazines
+                            a(href="magazines.csv" download="magazines.csv") 📥 
+                        div.input-group.input-group-sm
+                            input.form-control.search-bar(type="text" placeholder="Search Title/Author" onchange=`(${filter})(this.value, '${activeTab}')` value=searchData)
+                    table(class="table table-light table-hover table-striped")
+                        thead 
+                            tr.table-dark
+                                th Title
+                                th ISBN
+                                th Authors
+                                th Published At
+                        tbody 
+                            each magazine in magazines
+                                tr
+                                    td= magazine.title
+                                    td= magazine.isbn
+                                    td
+                                        ul.authors-list
+                                            each author in magazine.authors
+                                                li #{`${author.firstname} ${author.lastname} (${author.email})`}
+                                    td #{dayjs(magazine.publishedAt).format("DD MMM YYYY")}
+                            form(action="/magazine" method="post" target="blankIframe" onsubmit="window.location.href = window.location.href") 
+                                tr 
+                                    td 
+                                        input.form-control(name="title" placeholder="Enter Title")
+                                    td 
+                                        input.form-control(name="isbn" placeholder="Enter ISBN")
+                                    td.form-check.authors-list
+                                        each author in authorsList
+                                            div
+                                                input.form-check-input(name="authors" type="checkbox" value=author.email id=`magazine-${author.email}`)
+                                                label.form-check-label(for=`magazine-${author.email}`)= `${author.firstname} ${author.lastname} (${author.email})`
+                                    td 
+                                        input.form-control(type="date" name="publishedAt")
+                                tfoot.submit-container(colspan=4)
+                                    td
+                                    td
+                                    td
+                                    td
+                                        input(type="submit" value="Save")
+
+            iframe(name="blankIframe" style="display: none;")
